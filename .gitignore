@@ -176,3 +176,6 @@ cython_debug/
 
 training/logs/
 training/logs_try
+training/ckpt
+training/pretrained
+training/debug
