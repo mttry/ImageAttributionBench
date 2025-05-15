@@ -1,5 +1,5 @@
 # ImageAttributionBench
-This is the offical repository for "ImageAttributionBench: How Far Are We from Semantic-Free Attribution?".
+This is the offical repository for "ImageAttributionBench: How Far Are We from Semantic-Free Attribution?"
 ## Dependencies
 
 ## Dataset
