@@ -1,0 +1,51 @@
+model_name: repmix  
+
+d_embed: 256  
+num_classes: 23 
+
+mixup_samples: 2  
+mixup_beta: 0.4  
+mixup_level: 5  
+
+transform_prob: 1.0  
+do_dct_target: false  
+do_dct_input: false  
+do_hier_classify: false  
+pertubation: true  
+residual: false  
+loss_weight: term  
+
+device: cuda:0  
+inference: false  
+gpus: 1  
+
+img_rsize: 256  
+img_csize: 224  
+max_c: 15  
+img_mean: [0.5, 0.5, 0.5]  
+img_std: [0.5, 0.5, 0.5]  
+
+early_stop: true  
+nepochs: 10  
+batch_size: 32  
+train_nworkers: 4  
+val_nworkers: 2  
+
+optimizer:  
+  type: adam          
+  adam:  
+    lr: 0.0001  
+    betas: [0.9, 0.999]  
+    weight_decay: 0.0005  
+  sgd:  
+    lr: 0.01  
+    momentum: 0.9  
+    weight_decay: 0.0005  
+  grad_clip: 0.0  
+  grad_iters: 1  
+
+lr_scheduler: multistep   
+lr_gamma: 0.85  
+lr_step: 30              
+lr_T_max: 50            
+lr_eta_min: 0         

@@ -1,0 +1,21 @@
+model_name: clip_lr  
+
+optimizer:  
+  type: adam         
+  adam:  
+    lr: 0.001  
+  sgd:  
+    lr: 0.01  
+
+task_target: ""  
+
+start_epoch: 1  
+nEpochs: 1  
+
+metric_scoring: acc  
+
+# LR related
+lr_solver: 'lbfgs'  
+lr_penalty: 'l2'  
+lr_max_iter: 1000  
+lr_multi_class: 'multinomial'  

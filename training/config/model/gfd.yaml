@@ -1,0 +1,45 @@
+
+model_name: gfd  
+
+# 随机种子  
+manualSeed: 42  
+
+# 是否使用 cudnn benchmark  
+cudnn: true  
+
+# backbone
+in_channels: 3
+base_channels: 64
+
+# train stages
+num_stages: 2
+
+# 优化器配置  
+optimizer:  
+  type: adam          
+  adam:  
+    lr: 0.001  
+  sgd:  
+    lr: 0.01  
+
+# 学习率调度器  
+lr_scheduler: step    
+lr_step: 1          
+lr_gamma: 0.9        
+lr_T_max: 50         
+lr_eta_min: 0        
+
+# 任务相关  
+task_target: ""  
+
+# 训练迭代次数  
+start_epoch: 1  
+nEpochs: 30  
+
+# 评价指标，支持 ['auc', 'acc', 'ap']  
+metric_scoring: acc  
+
+# 是否保存checkpoint和特征（由命令行参数控制，默认true）  
+save_ckpt: true  
+save_feat: true  
+

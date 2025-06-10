@@ -1,0 +1,57 @@
+model_name: dna
+
+cudnn: true
+
+optimizer:  
+  type: adam
+  adam:  
+    lr: 0.0001         # Config.init_lr_E
+  sgd:  
+    lr: 0.01
+
+lr_scheduler: step    
+lr_step: 500           # Config.step_size
+lr_gamma: 0.9          # Config.gamma
+lr_T_max: 50
+lr_eta_min: 0
+
+task_target: "pretrain"  
+train_stage: 1
+
+start_epoch: 1  
+nEpochs: 50            # Config.max_epochs
+
+metric_scoring: acc     # Config.metric
+
+save_ckpt: true  
+save_feat: true
+
+num_classes: 170 # num of transforms
+batch_size: 128        # Config.batch_size
+num_workers: 4         # Config.num_workers
+class_num: 170         # Config.class_num
+crop_size: [256, 256]  # Config.crop_size
+resize_size: [512, 512] # Config.resize_size
+second_resize_size: null # Config.second_resize_size(None对应null)
+multi_size:              # Config.multi_size [(64,64)*16]
+  - [64, 64]
+  - [64, 64]
+  - [64, 64]
+  - [64, 64]
+  - [64, 64]
+  - [64, 64]
+  - [64, 64]
+  - [64, 64]
+  - [64, 64]
+  - [64, 64]
+  - [64, 64]
+  - [64, 64]
+  - [64, 64]
+  - [64, 64]
+  - [64, 64]
+  - [64, 64]
+
+temperature: 0.07         # Config.temperature
+
+early_stop_bar: 20      # Config.early_stop_bar
+save_interval: 1        # Config.save_interval

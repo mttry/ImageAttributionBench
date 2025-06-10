@@ -1,0 +1,32 @@
+model_name: hifi_net  
+
+# 随机种子  
+manualSeed: 42  
+
+# 是否使用 cudnn benchmark  
+cudnn: true  
+
+# 训练日志保存路径  
+# log_dir: ./logs  
+
+# 优化器配置  
+optimizer:  
+  type: adam           # 支持 adam 或 sgd  
+  adam:  
+    lr: 0.001  
+  sgd:  
+    lr: 0.01  
+
+# 任务相关  
+task_target: ""  
+
+# 训练迭代次数  
+start_epoch: 1  
+nEpochs: 11  
+
+# 评价指标，支持 ['auc', 'acc', 'ap']  
+metric_scoring: acc  
+
+# 是否保存checkpoint和特征（由命令行参数控制，默认true）  
+save_ckpt: true  
+save_feat: true  

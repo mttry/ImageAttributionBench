@@ -1,0 +1,19 @@
+
+model_name: dct  
+
+optimizer:  
+  type: adam          
+  adam:  
+    lr: 0.001  
+  sgd:  
+    lr: 0.01       
+
+task_target: ""  
+
+input_dim: 512
+alpha: 1.0
+
+start_epoch: 1  
+nEpochs: 30  
+
+metric_scoring: acc  

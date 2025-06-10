@@ -1,0 +1,68 @@
+# log dir 
+log_dir: debug_logs/ucf
+
+# model setting
+pretrained: pretrained/xception-b5690688.pth   # path to a pre-trained model, if using one
+model_name: ucf   # model name
+backbone_name: xception  # backbone name
+encoder_feat_dim: 512  # feature dimension of the backbone
+
+#backbone setting
+backbone_config:
+  mode: adjust_channel
+  num_classes: 2
+  inc: 3
+  dropout: false
+
+specific_task_number: 23
+
+save_ckpt: true   # whether to save checkpoint
+save_feat: true   # whether to save features
+
+
+# mean and std for normalization
+mean: [0.5, 0.5, 0.5]
+std: [0.5, 0.5, 0.5]
+
+# optimizer config
+optimizer:
+  # choose between 'adam' and 'sgd'
+  type: adam
+  adam:
+    lr: 0.0002  # learning rate
+    beta1: 0.9  # beta1 for Adam optimizer
+    beta2: 0.999 # beta2 for Adam optimizer
+    eps: 0.00000001  # epsilon for Adam optimizer
+    weight_decay: 0.0005  # weight decay for regularization
+    amsgrad: false
+  sgd:
+    lr: 0.0002  # learning rate
+    momentum: 0.9  # momentum for SGD optimizer
+    weight_decay: 0.0005  # weight decay for regularization
+
+# training config
+lr_scheduler: null   # learning rate scheduler
+nEpochs: 25   # number of epochs to train for
+start_epoch: 0   # manual epoch number (useful for restarts)
+save_epoch: 1   # interval epochs for saving models
+rec_iter: 100   # interval iterations for recording
+logdir: ./logs   # folder to output images and logs
+manualSeed: 1024   # manual seed for random number generation
+save_ckpt: false   # whether to save checkpoint
+
+# loss function
+loss_func:
+ cls_loss: cross_entropy   # loss function to use
+ spe_loss: cross_entropy
+ con_loss: contrastive_regularization
+ rec_loss: l1loss
+#  rec_loss: cliploss
+losstype: null
+
+# metric
+metric_scoring: auc   # metric for evaluation (auc, acc, eer, ap)
+
+# cuda
+
+cuda: true   # whether to use CUDA acceleration
+cudnn: true   # whether to use CuDNN for convolution operations
