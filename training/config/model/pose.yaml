@@ -42,15 +42,11 @@ optimizer:
   sgd:  
     lr: 0.01  
 
-task_target: ""  
-
 start_epoch: 1  
 nEpochs: 30  
 
 metric_scoring: acc  
 cluster_method: 'kmeans'
 
-save_ckpt: true  
-save_feat: true  
 
    

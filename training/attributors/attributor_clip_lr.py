@@ -20,6 +20,8 @@ from attributors import ATTRIBUTOR
 from metrics.base_metrics_class import calculate_metrics_for_train, calculate_metrics_for_test  
 
 
+#FIXME: save and load scaler and linear_probe together, now we only support training-time test.
+
 @ATTRIBUTOR.register_module(module_name='clip_lr')  
 class ClipLrAttributor(AbstractAttributor):  
     def __init__(self, config=None, load_param=False):  

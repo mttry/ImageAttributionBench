@@ -17,11 +17,11 @@ parser.add_argument('--root_dir', type=str, default='/remote-home/share/gzy/attr
 parser.add_argument('--batch_size', type=int, default=32)
 parser.add_argument('--num_workers', type=int, default=2)
 parser.add_argument('--num_images_per_semantic_per_class', '-n', type=int, default=2000)
-parser.add_argument('--task_id', type=int, default=1, help='任务编号，用于选择不同的语义划分，例如1、2、3等')
+parser.add_argument('--task_id', type=int, default=1, help='Task ID, used to select different semantic splits, such as 1, 2, 3, etc.')
 parser.add_argument('--resume_checkpoint', type=str, required=True, help='checkpoint path for testing')
 parser.add_argument('--log_dir', type=str, default="./logs_test")
 parser.add_argument('--level_start', type=int, default=0)
-parser.add_argument('--level_end', type=int, default=7)
+parser.add_argument('--level_end', type=int, default=1)
 args = parser.parse_args()
 
 
@@ -72,12 +72,10 @@ def main():
     metric_scoring = choose_metric(config)
     trainer = Trainer(config, model, None, None, logger, metric_scoring, log_dir=log_dir, test_mode=True)
 
-    # 加载checkpoint
     trainer.load_checkpoint(args.resume_checkpoint)
     # logger.info(f"Loaded checkpoint from {args.resume_checkpoint}")
 
-    # 准备数据加载器，传入降级等级
-    degraded_levels = list(range(args.level_start, args.level_end))  # 测试0~6的降级等级
+    degraded_levels = list(range(args.level_start, args.level_end)) 
 
     if args.use_semantic_split:
         train_semantics, test_semantics = get_semantic(args.task_id)

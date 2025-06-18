@@ -16,10 +16,6 @@ backbone_config:
 
 specific_task_number: 23
 
-save_ckpt: true   # whether to save checkpoint
-save_feat: true   # whether to save features
-
-
 # mean and std for normalization
 mean: [0.5, 0.5, 0.5]
 std: [0.5, 0.5, 0.5]
@@ -48,7 +44,6 @@ save_epoch: 1   # interval epochs for saving models
 rec_iter: 100   # interval iterations for recording
 logdir: ./logs   # folder to output images and logs
 manualSeed: 1024   # manual seed for random number generation
-save_ckpt: false   # whether to save checkpoint
 
 # loss function
 loss_func:
@@ -60,9 +55,4 @@ loss_func:
 losstype: null
 
 # metric
-metric_scoring: auc   # metric for evaluation (auc, acc, eer, ap)
-
-# cuda
-
-cuda: true   # whether to use CUDA acceleration
-cudnn: true   # whether to use CuDNN for convolution operations
+metric_scoring: acc   # metric for evaluation (auc, acc, eer, ap)
