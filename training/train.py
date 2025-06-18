@@ -21,12 +21,12 @@ parser.add_argument('--batch_size', type=int, default=32)
 parser.add_argument('--n_epoch', type=int)  
 parser.add_argument('--num_workers', type=int, default=2)  
 parser.add_argument('--num_images_per_semantic_per_class', '-n', type=int, default=2000)  
-parser.add_argument('--no-save_ckpt', dest='save_ckpt', action='store_false', default=True)  
-parser.add_argument('--no-save_feat', dest='save_feat', action='store_false', default=True)  
+# parser.add_argument('--no-save_ckpt', dest='save_ckpt', action='store_false', default=True)  
+# parser.add_argument('--no-save_feat', dest='save_feat', action='store_false', default=True)  
 parser.add_argument('--task_target', type=str, default="")  
 parser.add_argument('--resume_checkpoint', type=str, default=None)  
 parser.add_argument('--log_dir', type=str, default="./logs")  
-parser.add_argument('--task_id', type=int, default=1, help='任务编号，用于选择不同的语义划分，例如1、2、3等' )
+parser.add_argument('--task_id', type=int, default=1, help='Task ID, used to select different semantic splits, such as 1, 2, 3, etc.' )
 parser.add_argument('--save_freq', type=int, default=5, help='Checkpoint saving frequency (epochs)')  
 parser.add_argument('--do_test', action='store_false', default=True, help='Whether to run test evaluation after training')  
 args = parser.parse_args()  
@@ -47,7 +47,6 @@ def create_training_logger(config, use_semantic_split=False):
     task_str = f"_{config['task_target']}" if config.get('task_target') else ""  
     base_folder = config['log_dir']  
 
-    # 根据use_semantic_split选择不同的日志子目录  
     sub_folder = f"semantic_split_{args.task_id}" if use_semantic_split else "default_split"  
     log_dir = os.path.join(base_folder, sub_folder, config['model_name'], task_str + '_' + now)  
     os.makedirs(log_dir, exist_ok=True)  
@@ -88,8 +87,8 @@ def main():
     with open(args.config, 'r') as f:  
         config = yaml.safe_load(f)  
 
-    config['save_ckpt'] = args.save_ckpt  
-    config['save_feat'] = args.save_feat  
+    # config['save_ckpt'] = args.save_ckpt  
+    # config['save_feat'] = args.save_feat  
     # config['task_target'] = args.task_target  
     config['log_dir'] = args.log_dir  
 
@@ -144,7 +143,7 @@ def main():
 
     trainer = Trainer(config, model, optimizer, scheduler, logger, metric_scoring, time_now=now, log_dir=log_dir)  
 
-    # ----------------- 新增 恢复训练部分 -----------------  
+    # resume training 
     start_epoch = config.get('start_epoch', 1)  
     best_val_metric = None  
     best_epoch = 0  
@@ -155,20 +154,16 @@ def main():
             best_metrics, ckpt_epoch = trainer.load_checkpoint(resume_ckpt)  
             logger.info(f"Resumed checkpoint from {resume_ckpt}")  
             if ckpt_epoch is not None:  
-                start_epoch = ckpt_epoch + 1  # 从checkpoint最后一个epoch后开始训练  
+                start_epoch = ckpt_epoch + 1  
                 logger.info(f"Resuming from epoch {start_epoch}")  
             if best_metrics is not None:  
-                # 根据你的训练指标取合适的字段，假设你的best_val_metric就保存在best_metrics字典中  
-                # 这里做示例，假设最优指标字段叫 'val_metric'  
                 if 'val_metric' in best_metrics:  
                     best_val_metric = best_metrics['val_metric']  
                     logger.info(f"Restored best_val_metric: {best_val_metric}")  
         except Exception as e:  
             logger.error(f"Failed to load checkpoint {resume_ckpt}: {e}")  
-            # 这里你可以选择退出或者继续从头训练  
 
     n_epochs = config.get('nEpochs', 10)  
-    # 若命令行参数里有n_epoch，则用命令行参数覆盖默认值  
     if hasattr(args, 'n_epoch') and args.n_epoch is not None:  
         n_epochs = args.n_epoch  
           
@@ -196,7 +191,7 @@ def main():
         writer.close()  
 
     if args.do_test:  
-        degraded_levels = list(range(7))  # 0~6 的等级  
+        degraded_levels = list(range(7))  
 
         for degraded in degraded_levels:  
             print(f"Testing with degraded level {degraded}...")  
@@ -209,7 +204,7 @@ def main():
                     train_semantics=train_semantics,  
                     test_semantics=test_semantics,  
                     batch_size=args.batch_size,  
-                    degraded=degraded,  # 传入降级等级  
+                    degraded=degraded, 
                     config=config,
                     num_workers=args.num_workers,
                     use_semantic_split=True, 
@@ -220,15 +215,14 @@ def main():
                     model_name=model_name,  
                     num_images_per_semantic_per_class=args.num_images_per_semantic_per_class,  
                     batch_size=args.batch_size,  
-                    degraded=degraded,  # 这里也传  
+                    degraded=degraded, 
                     config=config,
                     num_workers=args.num_workers
                 )  
 
-            # 只针对 test_loader 进行测试，train_loader/val_loader不变或忽略  
             test_metrics = trainer.test(test_loader)  
 
-            # 保存结果  
+            # save results
             result_txt_path = os.path.join(log_dir, f"test_results_degraded_{degraded}.txt")  
             with open(result_txt_path, 'w') as f:  
                 f.write(f"Test metrics for degraded={degraded} ({datetime.datetime.now()}):\n")  

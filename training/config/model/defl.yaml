@@ -7,7 +7,6 @@ optimizer:
   sgd:  
     lr: 0.01  
 
-task_target: ""  
 
 start_epoch: 1  
 nEpochs: 11  

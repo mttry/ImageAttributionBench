@@ -16,7 +16,7 @@ lr_eta_min: 0
 task_target: ""  
 train_stage: 2
 load_param: True
-pretrained_path: "/home/ImageAttributionBench/training/logs/semantic_split_1/dna/_pretrain_2025-05-09-08-42-55/ckpt_best.pth"
+pretrained_path: #TODO: puts your pretrained ckpt path here
 
 start_epoch: 1  
 nEpochs: 50            # Config.max_epochs

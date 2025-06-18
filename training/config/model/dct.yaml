@@ -8,7 +8,6 @@ optimizer:
   sgd:  
     lr: 0.01       
 
-task_target: ""  
 
 input_dim: 512
 alpha: 1.0
