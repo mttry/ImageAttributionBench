@@ -3,12 +3,12 @@ This is the offical repository for "ImageAttributionBench: How Far Are We from S
 ## Dependencies
 You can create the environment using the provided `environment.yaml` file:
 ```
-git@github.com:mttry/ImageAttributionBench.git
+git clone git@github.com:mttry/ImageAttributionBench.git
 cd ImageAttributionBench
 conda env create -f environment.yaml
 ```
 ## Dataset
-The dataset **ImageAttributionBench** is available [here](https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/O4S4IV). You should get a dataset with an structure like:
+The dataset **ImageAttributionBench** is available [here](https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/O4S4IV). After downloading, you will obtain a dataset with the following structure:
 ```
 /home/image_attribution_dataset
 |-- 4o
@@ -31,7 +31,7 @@ The dataset **ImageAttributionBench** is available [here](https://dataverse.harv
     |-- church
     `-- classroom
 ```
-modify the default value of "root_dir" of the argument parser in `training/train.py` and `training/test.py` to the place where you download the dataset.
+Modify the default value of the root_dir argument in both `training/train.py` and `training/test.py` to point to the location where you downloaded the dataset.
 
 ## weights 
 you can download trained weights of attributors at ...
