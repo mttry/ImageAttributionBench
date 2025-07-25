@@ -33,6 +33,24 @@ The dataset **ImageAttributionBench** is available [here](https://dataverse.harv
 ```
 Modify the default value of the root_dir argument in both `training/train.py` and `training/test.py` to point to the location where you downloaded the dataset.
 
+📌 Update
+We have added a new script: `dataset/download.py` that allows you to automatically download selected dataset files from Dataverse.
+After filling in your Harvard Dataverse API Token, you can use the script to download specific models and semantic classes as follows:
+```
+python dataset/download.py \
+  --OUTPUT_DIR "./downloaded_data" \
+  --MODEL_CLASSES "mid-6.0,4o,SD1_5" \
+  --SEMANTIC_CLASSES "COCO,FFHQ,dog" \
+  --DELETE_ZIP True
+```
+
+or download the full dataset:
+```
+python dataset/download.py \
+  --OUTPUT_DIR "./downloaded_data" \
+  --DELETE_ZIP True
+```
+
 ## weights 
 you can download trained weights of attributors at ...
 
