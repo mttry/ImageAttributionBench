@@ -24,8 +24,8 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Download and extract selected model-semantic zip files from Dataverse.")
     parser.add_argument("--download_path", type=str, required=True, help="Path to save downloaded zip files.")
     parser.add_argument("--dataset_path", type=str, required=True, help="Path to extract dataset zip files.")
-    parser.add_argument("--model_classes", nargs="+", choices=ALL_MODEL_CLASSES, required=True, help="Target model classes.")
-    parser.add_argument("--semantic_classes", nargs="+", choices=ALL_SEMANTIC_CLASSES, required=True, help="Target semantic classes.")
+    parser.add_argument("--model_classes", nargs="+", choices=ALL_MODEL_CLASSES, default=ALL_MODEL_CLASSES, help="Target model classes.")
+    parser.add_argument("--semantic_classes", nargs="+", choices=ALL_SEMANTIC_CLASSES, default=ALL_SEMANTIC_CLASSES, help="Target semantic classes.")
     parser.add_argument("--delete_zip", action="store_true", help="If set, delete zip files after extraction.")
     return parser.parse_args()
 
