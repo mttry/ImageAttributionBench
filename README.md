@@ -52,7 +52,26 @@ python dataset/download.py \
 ```
 
 ## weights 
-you can download trained weights of attributors at ...
+you can download trained weights of attributors at [Harvard DataVerse](https://doi.org/10.7910/DVN/7IEAXP).Place weights in `training/ckpt` like 
+```
+training/ckpt
+|-- dct
+|   |-- dct_default.pth
+|   |-- dct_split1.pth
+|   |-- dct_split2.pth
+|   `-- dct_split3.pth
+|-- defl
+|   |-- defl_default.pth
+|   |-- defl_split1.pth
+|   |-- defl_split2.pth
+|   `-- defl_split3.pth
+...
+`-- ucf
+    |-- ucf_default.pth
+    |-- ucf_split1.pth
+    |-- ucf_split2.pth
+    `-- ucf_split3.pth
+```
 
 ## Train and evaluate
 You can use the scripts in `training/scripts` for training and `training/scripts_test` for testing. Take `ResNet50` for example:
