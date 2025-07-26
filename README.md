@@ -6,7 +6,14 @@ You can create the environment using the provided `environment.yaml` file:
 git clone git@github.com:mttry/ImageAttributionBench.git
 cd ImageAttributionBench
 conda env create -f environment.yaml
+
+
 ```
+## 🚆 Dataset Construction Pipeline
+
+The dataset construction process is organized under the `dataset_construction` directory, which contains all necessary components for generating high-quality image-text datasets.  
+For detailed usage and module descriptions, please refer to [`dataset_construction/README.md`](./dataset_construction/README.md).
+
 ## Dataset
 The dataset **ImageAttributionBench** is available [here](https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/O4S4IV). After downloading, you will obtain a dataset with the following structure:
 ```
@@ -51,7 +58,7 @@ python dataset/download.py \
   --DELETE_ZIP True
 ```
 
-## weights 
+## Weights 
 you can download trained weights of attributors at [Harvard DataVerse](https://doi.org/10.7910/DVN/7IEAXP).Place weights in `training/ckpt` like 
 ```
 training/ckpt
