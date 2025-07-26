@@ -57,7 +57,7 @@ python dataset/download.py \
 ```
 
 ## Weights 
-you can download trained weights of attributors at [Harvard DataVerse](https://doi.org/10.7910/DVN/7IEAXP).Place weights in `training/ckpt` like 
+you can download trained weights of attributors at [Harvard DataVerse](https://doi.org/10.7910/DVN/7IEAXP) and [Github Repo Release](https://github.com/mttry/ImageAttributionBench/releases/tag/1).Place weights in `training/ckpt` like 
 ```
 training/ckpt
 |-- dct
