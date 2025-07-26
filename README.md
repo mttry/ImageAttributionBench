@@ -6,8 +6,6 @@ You can create the environment using the provided `environment.yaml` file:
 git clone git@github.com:mttry/ImageAttributionBench.git
 cd ImageAttributionBench
 conda env create -f environment.yaml
-
-
 ```
 ## 🚆 Dataset Construction Pipeline
 
