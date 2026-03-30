@@ -1,0 +1,27 @@
+{
+  "additional_special_tokens": [
+    "<|image_area|>",
+    "<|begin_of_image|>",
+    "<|end_of_image|>",
+    "<|image_placeholder|>",
+    "<|begin_of_prompt_refinement|>",
+    "<|end_of_prompt_refinement|>",
+    "<|begin_of_thinking|>",
+    "<|end_of_thinking|>",
+    "<|beginoftext|>"
+  ],
+  "eos_token": {
+    "content": "<|endoftext|>",
+    "lstrip": false,
+    "normalized": false,
+    "rstrip": false,
+    "single_word": false
+  },
+  "pad_token": {
+    "content": "[PAD]",
+    "lstrip": false,
+    "normalized": false,
+    "rstrip": false,
+    "single_word": false
+  }
+}

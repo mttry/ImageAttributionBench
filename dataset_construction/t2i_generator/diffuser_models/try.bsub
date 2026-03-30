@@ -1,0 +1,15 @@
+#BSUB -J "try"
+#BSUB -o /home/mot2sgh/bsub/logs/%J_qwen-image.stdout
+#BSUB -e /home/mot2sgh/bsub/logs/%J_qwen-image.stderr
+#BSUB -q gpu_regular
+#BSUB -W 24:00
+#BSUB -n 8
+#BSUB -M 32000
+#BSUB -gpu "num=1:mode=exclusive_process"
+#BSUB -R "span[hosts=1]"
+#BSUB -m "szh-hpc-b02gp06"  # Uncomment to pin to specific node
+
+source ~/.bashrc
+conda activate 310
+cd /home/mot2sgh/mts/ImageAttributionBench/dataset_construction/t2i_generator/diffuser_models
+python try_qwenimage.py > /home/mot2sgh/mts/ImageAttributionBench/dataset_construction/t2i_generator/diffuser_models/log.log

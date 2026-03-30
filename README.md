@@ -43,17 +43,19 @@ We have added a new script: `dataset/download.py` that allows you to automatical
 After filling in your Harvard Dataverse API Token, you can use the script to download specific models and semantic classes as follows:
 ```
 python dataset/download.py \
-  --OUTPUT_DIR "./downloaded_data" \
-  --MODEL_CLASSES "mid-6.0,4o,SD1_5" \
-  --SEMANTIC_CLASSES "COCO,FFHQ,dog" \
-  --DELETE_ZIP True
+--download_path "./downloaded_data" \
+--dataset_path "./downloaded_data" \
+--model_classes SDXL real \
+--semantic_classes dog \
+--delete_zip
 ```
 
-or download the full dataset:
+or download the full dataset(requires >500 GB of available disk space):
 ```
 python dataset/download.py \
-  --OUTPUT_DIR "./downloaded_data" \
-  --DELETE_ZIP True
+--download_path "./downloaded_data" \
+--dataset_path "./downloaded_data" \
+--delete_zip
 ```
 
 ## Weights 

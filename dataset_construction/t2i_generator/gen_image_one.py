@@ -2,11 +2,13 @@ import os
 import argparse
 import pandas as pd
 import csv
+import torch
 from typing import Tuple
 import traceback
 from enum import Enum
 from tqdm import tqdm
-from diffuser_models.SDModel import SDVersion
+
+from diffuser_models.SDModel import SDVersion, StableDiffusionModel
 
 other_models = [
     "janus-pro", "hidream", "infinity", 
@@ -27,6 +29,7 @@ def parse_args():
 
 args = parse_args()
 selected = None
+
 for v in SDVersion:
     if args.model.lower() == v.short_name or args.model.upper() == v.name:
         selected = v
@@ -69,20 +72,20 @@ if args.model.lower() in ["dalle3", "4o"]:
 if not selected:
     raise ValueError(f"Invalid model argument: {args.model}")
 
-print(f"Selected model: {selected.name} ({selected.model_name})")
+selected_name = selected.name if isinstance(selected, SDVersion) else getattr(selected, 'name', args.model)
+selected_model_name = selected.model_name if isinstance(selected, SDVersion) else getattr(selected, 'model_name', 'API/Custom')
+print(f"Selected model: {selected_name} ({selected_model_name})")
 
 os.environ["HF_ENDPOINT"] = "https://hf-mirror.com"
 
-from models.SDModel import SDVersion, StableDiffusionModel
-
 if args.test:
-    CAPTION_DIR = "/home/final_captions"
-    OUTPUT_BASE = "/home/final_dataset_test"
-    MAPPING_DIR = "/home/final_img_cap_mapping"
+    CAPTION_DIR = "/home/mot2sgh/mts/ImageAttributionBench/dataset_construction/prompt_generator/downloaded_captions/final_captions"
+    OUTPUT_BASE = "/fs/projects/SGH_CR_RAI-AP_szh-hpc_users/workplace/mot2sgh/ImageAttributionBench-test"
+    MAPPING_DIR = "/fs/projects/SGH_CR_RAI-AP_szh-hpc_users/workplace/mot2sgh/ImageAttributionBench-test-mapping"
 else:
-    CAPTION_DIR = "/home/final_captions"
-    OUTPUT_BASE = "/home/final_dataset"
-    MAPPING_DIR = "/home/final__mapping"
+    CAPTION_DIR = "/home/mot2sgh/mts/ImageAttributionBench/dataset_construction/prompt_generator/downloaded_captions/final_captions_no_human"
+    OUTPUT_BASE = "/fs/projects/SGH_CR_RAI-AP_szh-hpc_users/workplace/mot2sgh/ImageAttributionBench"
+    MAPPING_DIR = "/fs/projects/SGH_CR_RAI-AP_szh-hpc_users/workplace/mot2sgh/ImageAttributionBench-mapping"
 
 def parse_filename(filename: str) -> Tuple[str, str, str]:
     base_name = os.path.splitext(filename)[0]
@@ -107,26 +110,27 @@ def parse_filename(filename: str) -> Tuple[str, str, str]:
                 return main_category, sub, base_name
     return main_category, "_".join(sub_parts), base_name
 
-def generate_images(model_version: SDVersion, device="cuda:0"):
-    import torch
+def generate_images(model_version, device="cuda:0"):
     csv_files = [f for f in os.listdir(CAPTION_DIR) if f.endswith('.csv')]
     if args.reverse:
         csv_files.reverse()
     if args.trancate:
         csv_files = csv_files[9:]
 
-    print(f"\n{'='*40}\nProcessing model: {model_version.name}\n{'='*40}")
+    model_name_str = model_version.name if isinstance(model_version, SDVersion) else getattr(model_version, 'name', args.model)
+    print(f"\n{'='*40}\nProcessing model: {model_name_str}\n{'='*40}")
 
     try:
-        if model_version.name in other_models:
-            model = model_version
-        else:
+        if isinstance(model_version, SDVersion):
             model = StableDiffusionModel(
                 version=model_version,
                 device=device if torch.cuda.is_available() else "cpu"
             )
+        else:
+            model = model_version
+            
     except Exception as e:
-        print(f"Error initializing {model_version.name}: {str(e)}")
+        print(f"Error initializing {model_name_str}: {str(e)}")
         traceback.print_exc()
         return
 
@@ -153,14 +157,13 @@ def generate_images(model_version: SDVersion, device="cuda:0"):
 
         print(main_cat, "----", sub_cat)
 
-        mapping_subdir = os.path.join(MAPPING_DIR, model_version.name, main_cat, sub_cat)
+        mapping_subdir = os.path.join(MAPPING_DIR, model_name_str, main_cat, sub_cat)
         os.makedirs(mapping_subdir, exist_ok=True)
         mapping_file = os.path.join(mapping_subdir, f"{base_name}.csv")
 
-        save_subdir = os.path.join(OUTPUT_BASE, model_version.name, main_cat, sub_cat)
+        save_subdir = os.path.join(OUTPUT_BASE, model_name_str, main_cat, sub_cat)
         os.makedirs(save_subdir, exist_ok=True)
-        existing_files = [f for f in os.listdir(save_subdir) if f.endswith('.png')]
-        start_index = len(existing_files) // num_images_per_prompt
+        
         file_exists = os.path.exists(mapping_file)
 
         for idx, caption in enumerate(tqdm(captions, desc="Generating images")):
@@ -168,12 +171,11 @@ def generate_images(model_version: SDVersion, device="cuda:0"):
             for img_idx in range(num_images_per_prompt):
                 filename = f"{base_name}_p{idx}_i{img_idx}.png"
                 save_path = os.path.join(save_subdir, filename)
-                print(save_path)
+                
                 if not os.path.exists(save_path):
                     missing_indices.append(img_idx)
 
             if not missing_indices:
-                print(f"All images for prompt index {idx} already exist, skipping generation.")
                 continue
 
             try:
@@ -212,12 +214,15 @@ def generate_images(model_version: SDVersion, device="cuda:0"):
         torch.cuda.empty_cache()
 
 def main():
-    import torch
-    print(torch.cuda.current_device())
+    if torch.cuda.is_available():
+        print(f"Current CUDA device: {torch.cuda.current_device()}")
+    else:
+        print("CUDA is not available, using CPU.")
+        
     generate_images(model_version=selected, device=f"cuda:{args.device}")
 
 if __name__ == "__main__":
-    import torch
-    print(torch.__version__)
-    print(torch.version.cuda)
+    print(f"PyTorch version: {torch.__version__}")
+    if torch.cuda.is_available():
+        print(f"CUDA version: {torch.version.cuda}")
     main()

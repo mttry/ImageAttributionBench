@@ -181,3 +181,10 @@ training/logs_try
 training/ckpt
 training/pretrained
 training/debug
+
+.bsub
+dataset_construction/t2i_generator/bsubs
+
+dataset_construction/t2i_generator/diffuser_models/*.png
+dataset_construction/t2i_generator/diffuser_models/*.jpg
+*.safetensors
