@@ -1,4 +1,4 @@
-# # Dataset Construction
+# Dataset Construction
 
 This folder contains the data construction pipeline for the Image Attribution Benchmark. It is organized into the following submodules:
 

@@ -1,0 +1,14 @@
+{
+    "resolution": 256,
+    "in_channels": 3,
+    "ch": 128,
+    "out_ch": 3,
+    "ch_mult": [1, 2, 4, 4],
+    "num_res_blocks": 2,
+    "z_channels": 16,
+    "shift_factor": 0,
+    "scaling_factor": 1,
+    "deterministic": true,
+    "encoder_norm": true,
+    "psz": 1
+}

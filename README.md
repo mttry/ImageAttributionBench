@@ -7,6 +7,11 @@ git clone git@github.com:mttry/ImageAttributionBench.git
 cd ImageAttributionBench
 conda env create -f environment.yaml
 ```
+## 🚆 Dataset Construction Pipeline
+
+The dataset construction process is organized under the `dataset_construction` directory, which contains all necessary components for generating high-quality image-text datasets.  
+For detailed usage and module descriptions, please refer to [`dataset_construction/README.md`](./dataset_construction/README.md).
+
 ## Dataset
 The dataset **ImageAttributionBench** is available [here](https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/O4S4IV). After downloading, you will obtain a dataset with the following structure:
 ```
@@ -33,8 +38,47 @@ The dataset **ImageAttributionBench** is available [here](https://dataverse.harv
 ```
 Modify the default value of the root_dir argument in both `training/train.py` and `training/test.py` to point to the location where you downloaded the dataset.
 
-## weights 
-you can download trained weights of attributors at ...
+📌 Update
+We have added a new script: `dataset/download.py` that allows you to automatically download selected dataset files from Dataverse.
+After filling in your Harvard Dataverse API Token, you can use the script to download specific models and semantic classes as follows:
+```
+python dataset/download.py \
+--download_path "./downloaded_data" \
+--dataset_path "./downloaded_data" \
+--model_classes SDXL real \
+--semantic_classes dog \
+--delete_zip
+```
+
+or download the full dataset(requires >500 GB of available disk space):
+```
+python dataset/download.py \
+--download_path "./downloaded_data" \
+--dataset_path "./downloaded_data" \
+--delete_zip
+```
+
+## Weights 
+you can download trained weights of attributors at [Harvard DataVerse](https://doi.org/10.7910/DVN/7IEAXP) and [Github Repo Release](https://github.com/mttry/ImageAttributionBench/releases/tag/1).Place weights in `training/ckpt` like 
+```
+training/ckpt
+|-- dct
+|   |-- dct_default.pth
+|   |-- dct_split1.pth
+|   |-- dct_split2.pth
+|   `-- dct_split3.pth
+|-- defl
+|   |-- defl_default.pth
+|   |-- defl_split1.pth
+|   |-- defl_split2.pth
+|   `-- defl_split3.pth
+...
+`-- ucf
+    |-- ucf_default.pth
+    |-- ucf_split1.pth
+    |-- ucf_split2.pth
+    `-- ucf_split3.pth
+```
 
 ## Train and evaluate
 You can use the scripts in `training/scripts` for training and `training/scripts_test` for testing. Take `ResNet50` for example:
