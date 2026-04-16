@@ -5,21 +5,25 @@ import csv
 import torch
 from typing import Tuple
 import traceback
-from enum import Enum
 from tqdm import tqdm
-
-from diffuser_models.SDModel import SDVersion, StableDiffusionModel
 
 other_models = [
     "janus-pro", "hidream", "infinity", 
     "kling", "gemini", "ideogram", "grok3", "4o", "dalle3",
+]
+openai_compatible_models = [
+    "gpt-image-1",
+    "gpt-image-1.5",
+    "doubao-seedream-3.0-t2i",
+    "doubao-seedream-5.0-lite",
+    "gemini-2.5-flash-image",
+    "gemini-3-pro-image",
 ]
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Image generation script')
     parser.add_argument('-m', '--model',
                         required=True,
-                        choices=[v.short_name for v in SDVersion] + [v.name for v in SDVersion] + other_models,
                         help='Model name')
     parser.add_argument('-c', '--device', default=0)
     parser.add_argument('-t', '--test', default=False, action="store_true")
@@ -29,11 +33,37 @@ def parse_args():
 
 args = parse_args()
 selected = None
+SDVersion = None
+StableDiffusionModel = None
+sd_import_error = None
 
-for v in SDVersion:
-    if args.model.lower() == v.short_name or args.model.upper() == v.name:
-        selected = v
-        break
+
+def is_sd_version(model) -> bool:
+    return SDVersion is not None and isinstance(model, SDVersion)
+
+
+non_sd_models = set(other_models + openai_compatible_models)
+if args.model not in non_sd_models:
+    try:
+        from diffuser_models.SDModel import SDVersion as ImportedSDVersion, StableDiffusionModel as ImportedStableDiffusionModel
+        SDVersion = ImportedSDVersion
+        StableDiffusionModel = ImportedStableDiffusionModel
+    except Exception as exc:
+        sd_import_error = exc
+
+    if SDVersion is not None:
+        for v in SDVersion:
+            if args.model.lower() == v.short_name or args.model.upper() == v.name:
+                selected = v
+                break
+
+    if selected is None:
+        if sd_import_error is not None:
+            raise RuntimeError(
+                f"Failed to load Stable Diffusion models while resolving '{args.model}': {sd_import_error}"
+            ) from sd_import_error
+        raise ValueError(f"Invalid model argument: {args.model}")
+
 
 if args.model.lower() == "infinity":
     from Infinity.load_model import InfinityModel
@@ -69,23 +99,27 @@ if args.model.lower() in ["dalle3", "4o"]:
     from API.AIModel import AIClient
     selected = AIClient(args.model.lower())
 
+if args.model in openai_compatible_models:
+    from API.new_gen_image import OpenAICompatibleImageModel
+    selected = OpenAICompatibleImageModel(args.model)
+
 if not selected:
     raise ValueError(f"Invalid model argument: {args.model}")
 
-selected_name = selected.name if isinstance(selected, SDVersion) else getattr(selected, 'name', args.model)
-selected_model_name = selected.model_name if isinstance(selected, SDVersion) else getattr(selected, 'model_name', 'API/Custom')
+selected_name = selected.name if is_sd_version(selected) else getattr(selected, 'name', args.model)
+selected_model_name = selected.model_name if is_sd_version(selected) else getattr(selected, 'model_name', 'API/Custom')
 print(f"Selected model: {selected_name} ({selected_model_name})")
 
 os.environ["HF_ENDPOINT"] = "https://hf-mirror.com"
 
 if args.test:
-    CAPTION_DIR = "/home/mot2sgh/mts/ImageAttributionBench/dataset_construction/prompt_generator/downloaded_captions/final_captions"
-    OUTPUT_BASE = "/fs/projects/SGH_CR_RAI-AP_szh-hpc_users/workplace/mot2sgh/ImageAttributionBench-test"
-    MAPPING_DIR = "/fs/projects/SGH_CR_RAI-AP_szh-hpc_users/workplace/mot2sgh/ImageAttributionBench-test-mapping"
+    CAPTION_DIR = "/home/i-moutingshu/mts/IA/ImageAttributionBench/dataset_construction/prompt_generator/downloaded_captions/final_captions_new"
+    OUTPUT_BASE = "/mnt/ws-jfs/IA/ImageAttributionBench-test"
+    MAPPING_DIR = "/mnt/ws-jfs/IA/ImageAttributionBench-test-mapping"
 else:
-    CAPTION_DIR = "/home/mot2sgh/mts/ImageAttributionBench/dataset_construction/prompt_generator/downloaded_captions/final_captions_no_human"
-    OUTPUT_BASE = "/fs/projects/SGH_CR_RAI-AP_szh-hpc_users/workplace/mot2sgh/ImageAttributionBench"
-    MAPPING_DIR = "/fs/projects/SGH_CR_RAI-AP_szh-hpc_users/workplace/mot2sgh/ImageAttributionBench-mapping"
+    CAPTION_DIR = "/home/i-moutingshu/mts/IA/ImageAttributionBench/dataset_construction/prompt_generator/downloaded_captions/final_captions_new"
+    OUTPUT_BASE = "/mnt/ws-jfs/IA/ImageAttributionBench"
+    MAPPING_DIR = "/mnt/ws-jfs/IA/ImageAttributionBench-mapping"
 
 def parse_filename(filename: str) -> Tuple[str, str, str]:
     base_name = os.path.splitext(filename)[0]
@@ -117,11 +151,11 @@ def generate_images(model_version, device="cuda:0"):
     if args.trancate:
         csv_files = csv_files[9:]
 
-    model_name_str = model_version.name if isinstance(model_version, SDVersion) else getattr(model_version, 'name', args.model)
+    model_name_str = model_version.name if is_sd_version(model_version) else getattr(model_version, 'name', args.model)
     print(f"\n{'='*40}\nProcessing model: {model_name_str}\n{'='*40}")
 
     try:
-        if isinstance(model_version, SDVersion):
+        if is_sd_version(model_version):
             model = StableDiffusionModel(
                 version=model_version,
                 device=device if torch.cuda.is_available() else "cpu"
@@ -146,11 +180,16 @@ def generate_images(model_version, device="cuda:0"):
             continue
 
         num_images_per_prompt = 2
-        if main_cat in ["ImageNet-1k", "COCO"]:
+        old_base_names = {"imagenet-1k", "COCO"}
+
+        if base_name in old_base_names:
             continue
-        elif main_cat in ["ImageNet-1k-new", "COCO-new"]:
-            num_images_per_prompt = 2
-            main_cat = main_cat[:-4]
+        if base_name == "imagenet-1k-new":
+            # Use the canonical ImageNet-1k name for both folder and filename.
+            main_cat = "ImageNet-1k"
+            base_name = "ImageNet-1k"
+        elif base_name == "COCO-new":
+            main_cat = "COCO"
 
         if main_cat == "Scene" and sub_cat not in ["church", "bedroom", "classroom"]:
             continue
@@ -183,6 +222,11 @@ def generate_images(model_version, device="cuda:0"):
                     prompt=caption,
                     num_images=len(missing_indices)
                 )
+            except SystemExit as e:
+                print(
+                    f"Generation skipped for caption {idx} due to API/system exit: {str(e)}"
+                )
+                continue
             except Exception as e:
                 print(f"Generation failed for caption {idx}: {str(e)}")
                 traceback.print_exc()

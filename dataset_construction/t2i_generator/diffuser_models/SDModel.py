@@ -1,3 +1,4 @@
+import os
 import sys
 from enum import Enum
 import torch
@@ -6,6 +7,40 @@ from typing import List, Optional, Union
 
 from transformers import AutoTokenizer, AutoModel
 
+
+def _patch_torch_custom_op_for_diffusers() -> None:
+    # diffusers dev branch registers custom ops that break on torch 2.4.x during import.
+    version_str = torch.__version__.split("+", 1)[0]
+    try:
+        version_parts = tuple(int(part) for part in version_str.split(".")[:3])
+    except ValueError:
+        return
+
+    if version_parts >= (2, 5, 0):
+        return
+
+    library = getattr(torch, "library", None)
+    if library is None:
+        return
+
+    def custom_op_no_op(name, fn=None, /, *, mutates_args, device_types=None, schema=None):
+        def wrap(func):
+            return func
+
+        return wrap if fn is None else fn
+
+    def register_fake_no_op(op, fn=None, /, *, lib=None, _stacklevel=1):
+        def wrap(func):
+            return func
+
+        return wrap if fn is None else fn
+
+    library.custom_op = custom_op_no_op
+    library.register_fake = register_fake_no_op
+
+
+_patch_torch_custom_op_for_diffusers()
+
 from diffusers import (
     StableDiffusionPipeline,
     StableDiffusionXLPipeline,
@@ -13,7 +48,6 @@ from diffusers import (
     DPMSolverSinglestepScheduler,
     DiffusionPipeline,
     PixArtAlphaPipeline,
-    AutoPipelineForText2Image,
     FluxPipeline,
     CogView3PlusPipeline,
     ZImagePipeline,
@@ -145,6 +179,8 @@ class StableDiffusionModel:
                 **config
             )
         elif self.version == SDVersion.KANDINSKY:
+            from diffusers import AutoPipelineForText2Image
+
             pipe = AutoPipelineForText2Image.from_pretrained(
                 self.version.model_name,
                 **config
@@ -205,15 +241,15 @@ class StableDiffusionModel:
             return pipe
             
         elif self.version == SDVersion.GLM_IMAGE:
+            model_path = os.environ.get("GLM_IMAGE_PATH", "/data/huggingface/zai-org/GLM-Image")
             pipe = GlmImagePipeline.from_pretrained(
-                self.version.model_name,
+                model_path,
+                local_files_only=True,
                 **config
             )
             return pipe.to(self.device)
             
         elif self.version == SDVersion.NEXTSTEP:
-            import os # 如果文件开头已经导入了 os，这里可以省略
-            
             # 1. 获取当前文件 (SDModel.py) 的绝对目录
             current_dir = os.path.dirname(os.path.abspath(__file__))
             # 2. 获取上一级目录 (t2i_generator)
